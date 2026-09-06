@@ -8,8 +8,11 @@ const multer = require('multer');
 const { Server } = require('socket.io');
 
 const PORT = process.env.PORT || 3000;
-const DATA_DIR = path.join(__dirname, 'data');
-const UPLOADS_DIR = path.join(__dirname, 'uploads');
+// كل البيانات الدائمة (رسائل + ملفات مرفوعة) تعيش تحت مجلد واحد STORAGE_DIR
+// حتى يكفي ربط قرص دائم واحد بهذا المسار عند النشر على منصات مثل Render/Railway.
+const STORAGE_DIR = process.env.STORAGE_DIR || path.join(__dirname, 'storage');
+const DATA_DIR = path.join(STORAGE_DIR, 'data');
+const UPLOADS_DIR = path.join(STORAGE_DIR, 'uploads');
 const MESSAGES_FILE = path.join(DATA_DIR, 'messages.json');
 const NAMES_FILE = path.join(DATA_DIR, 'names.json');
 const MAX_UPLOAD_MB = 20;

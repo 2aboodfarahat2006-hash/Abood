@@ -30,60 +30,68 @@ npm start
 two-person-chat/
 ├── server.js          # السيرفر: Express + Socket.io + رفع الملفات
 ├── package.json
-├── data/
-│   ├── messages.json  # سجل الرسائل (يُنشأ تلقائيًا)
-│   └── names.json     # أسماء الطرفين (يُنشأ تلقائيًا)
-├── uploads/           # الصور والملفات المرفوعة فعليًا
+├── render.yaml         # إعداد جاهز للنشر على Render (اختياري)
+├── storage/            # كل البيانات الدائمة (يُنشأ تلقائيًا، مسارها قابل للتغيير عبر STORAGE_DIR)
+│   ├── data/
+│   │   ├── messages.json
+│   │   └── names.json
+│   └── uploads/         # الصور والملفات المرفوعة فعليًا
 └── public/
     ├── index.html
     ├── style.css
     └── client.js
 ```
 
-## النشر على سيرفر حقيقي
+كل البيانات الدائمة موحّدة تحت مجلد واحد (`storage/`) حتى يكفي ربط **قرص دائم واحد**
+بهذا المسار عند النشر. يمكن تغيير مكانه عبر متغير البيئة `STORAGE_DIR`.
 
-أي من الخيارات التالية يعمل. المهم: يجب أن يكون للتطبيق **قرص دائم (persistent disk)**
-لمجلدي `data/` و`uploads/`، وإلا فستُفقد الرسائل والملفات عند كل إعادة نشر (redeploy).
+## النشر على الإنترنت برابط دائم
 
-### خيار ١: VPS خاص بك (الأبسط للتحكم الكامل)
-مثل DigitalOcean أو Hetzner أو أي سيرفر Linux:
+للحصول على رابط دائم يستخدمه أنت وصاحبك، البيانات يجب أن تبقى محفوظة بين عمليات
+إعادة التشغيل — وهذا يتطلب **قرص دائم (persistent disk)**. معظم المنصات تقدّم مستوى
+مجاني، لكن بدون قرص دائم فيه (البيانات تُمسح كل فترة). الخيار الواقعي الأرخص هو
+Render بخطته المدفوعة الأبسط (Starter، تبدأ من نحو 7$/شهر + أقل من دولار للقرص) —
+تحقق من السعر الحالي على render.com/pricing لأنه قابل للتغيير.
 
-```bash
-git clone <رابط مستودعك> && cd two-person-chat
-npm install --production
-npm install -g pm2
-pm2 start server.js --name two-person-chat
-pm2 save && pm2 startup
-```
+### النشر على Render (الأسهل)
+1. ارفع محتويات هذا المجلد إلى مستودع GitHub (حتى لو فارغ سوى بهذه الملفات).
+2. أنشئ حساب على render.com واربطه بحساب GitHub.
+3. اختر "New" → "Web Service" وحدد المستودع — Render سيكتشف أنه Node.js تلقائيًا.
+4. Build Command: `npm install` — Start Command: `npm start`.
+5. اختر خطة **Starter** (وليس Free) لأنها الوحيدة التي تدعم الأقراص الدائمة.
+6. من تبويب "Disks" أضف قرصًا: Mount Path = `/var/data`، الحجم 1GB يكفي تمامًا.
+7. من "Environment" أضف متغيّر: `STORAGE_DIR` = `/var/data`.
+8. اضغط Deploy، وانتظر بضع دقائق — Render يعطيك رابطًا دائمًا مثل
+   `https://two-person-chat.onrender.com` تشاركونه أنت وصاحبك.
 
-ثم ضع Nginx أمامه كـ reverse proxy مع شهادة SSL مجانية عبر Let's Encrypt/Certbot
-حتى يعمل الموقع على `https://` بدل `http://` (ضروري لأن بعض المتصفحات تمنع رفع
-الملفات أو الميكروفون على مواقع غير آمنة، وحتى تكون المحادثة مشفّرة بين الطرفين والسيرفر).
+(ملف `render.yaml` المرفق يحتوي هذا الإعداد جاهزًا إن كانت منصتك تدعم "Blueprints".)
 
-### خيار ٢: منصات استضافة جاهزة (Render / Railway / Fly.io)
-كلها تدعم تطبيقات Node.js مباشرة من مستودع GitHub:
-1. ارفع المجلد إلى مستودع GitHub.
-2. أنشئ خدمة "Web Service" جديدة واربطها بالمستودع.
-3. أمر التشغيل: `npm start` — والمنفذ يُقرأ تلقائيًا من متغير البيئة `PORT`.
-4. **مهم:** فعّل خيار "Persistent Disk" أو "Volume" واربطه بمسار المشروع (أو بمجلدي
-   `data` و`uploads` تحديدًا) — بدونه ستُمسح البيانات عند كل إعادة نشر.
-
-### خيار ٣: Docker
-```dockerfile
-FROM node:20-alpine
-WORKDIR /app
-COPY package*.json ./
-RUN npm install --production
-COPY . .
-EXPOSE 3000
-CMD ["node", "server.js"]
-```
-شغّله مع تركيب (mount) مجلدي `data` و`uploads` كـ volumes حتى تبقى البيانات محفوظة
-عند إعادة تشغيل الحاوية:
-```bash
-docker build -t two-person-chat .
-docker run -p 3000:3000 -v $(pwd)/data:/app/data -v $(pwd)/uploads:/app/uploads two-person-chat
-```
+### بدائل أخرى
+- **Railway.app**: نفس الفكرة تقريبًا، أضف Volume واربطه بـ `/var/data` وضع
+  متغير `STORAGE_DIR=/var/data`.
+- **VPS خاص بك** (DigitalOcean, Hetzner...): الأرخص على المدى الطويل والأكثر تحكمًا:
+  ```bash
+  git clone <رابط مستودعك> && cd two-person-chat
+  npm install --production
+  npm install -g pm2
+  pm2 start server.js --name two-person-chat
+  pm2 save && pm2 startup
+  ```
+  ثم ضع Nginx أمامه كـ reverse proxy مع شهادة SSL مجانية عبر Let's Encrypt/Certbot.
+- **Docker** (لأي منصة تدعمه):
+  ```dockerfile
+  FROM node:20-alpine
+  WORKDIR /app
+  COPY package*.json ./
+  RUN npm install --production
+  COPY . .
+  EXPOSE 3000
+  CMD ["node", "server.js"]
+  ```
+  ```bash
+  docker build -t two-person-chat .
+  docker run -p 3000:3000 -e STORAGE_DIR=/app/storage -v $(pwd)/storage:/app/storage two-person-chat
+  ```
 
 ## ملاحظات مهمة
 - **الوصول للموقع:** أي شخص يملك رابط الموقع يمكنه اختيار "الشخص الأول" أو

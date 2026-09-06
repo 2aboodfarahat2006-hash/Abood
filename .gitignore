@@ -1,5 +1,4 @@
 node_modules/
-uploads/*
-!uploads/.gitkeep
+storage/
 .DS_Store
 *.log
