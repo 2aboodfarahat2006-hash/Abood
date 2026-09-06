@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>بيننا — محادثة خاصة</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div id="app">
+
+  <!-- شاشة اختيار الهوية -->
+  <div id="identity-screen">
+    <div class="id-card">
+      <h1>بيننا</h1>
+      <p class="sub">مساحة محادثة خاصة بينك وبين شخص واحد فقط. اختر من أنت لتدخل المحادثة.</p>
+
+      <div id="role-step">
+        <div class="role-choice">
+          <button class="role-btn" data-role="user1">
+            <span class="role-avatar user1">١</span>
+            <span>
+              <div id="label-user1">الشخص الأول</div>
+              <div class="role-name-hint" id="hint-user1">لم يتم تعيين اسم بعد</div>
+            </span>
+          </button>
+          <button class="role-btn" data-role="user2">
+            <span class="role-avatar user2">٢</span>
+            <span>
+              <div id="label-user2">الشخص الثاني</div>
+              <div class="role-name-hint" id="hint-user2">لم يتم تعيين اسم بعد</div>
+            </span>
+          </button>
+        </div>
+      </div>
+
+      <div id="name-step">
+        <input type="text" id="name-input" placeholder="اكتب اسمك...">
+        <button class="primary-btn" id="confirm-name-btn">دخول إلى المحادثة</button>
+        <span class="back-link" id="back-to-roles">رجوع</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- شاشة الشات -->
+  <div id="chat-screen">
+    <header>
+      <div class="brand">
+        <span class="dot" id="conn-dot"></span>
+        <div>
+          <h2>بيننا</h2>
+          <div class="peer-status" id="peer-status">محادثة خاصة بينكما</div>
+        </div>
+      </div>
+      <div class="who-am-i" id="switch-role">أنت: <b id="current-name">—</b> · تبديل</div>
+    </header>
+
+    <div id="messages">
+      <div id="empty-state">
+        <div class="big">لا رسائل بعد</div>
+        <div>ابدآ الحديث، أو أرسلا صورة أو ملفًا أو رابطًا</div>
+      </div>
+    </div>
+
+    <div id="typing-indicator" class="typing-indicator" style="display:none;"></div>
+
+    <footer>
+      <div id="attach-preview">
+        <img id="attach-preview-img" style="display:none;">
+        <span id="attach-preview-name"></span>
+        <span class="remove-attach" id="remove-attach">إزالة ✕</span>
+      </div>
+      <div class="composer-row">
+        <div class="icon-btn" id="btn-file" title="إرفاق ملف">📎</div>
+        <div class="icon-btn" id="btn-image" title="إرفاق صورة">🖼️</div>
+        <textarea id="text-input" rows="1" placeholder="اكتب رسالة..."></textarea>
+        <button id="send-btn" title="إرسال">➤</button>
+      </div>
+      <div class="hint-line">الصور والملفات محدودة بحجم حتى ٢٠ ميجابايت</div>
+    </footer>
+  </div>
+
+</div>
+
+<input type="file" id="image-input" accept="image/*" hidden>
+<input type="file" id="file-input" hidden>
+
+<div id="lightbox"><img id="lightbox-img" src=""></div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/client.js"></script>
+</body>
+</html>
