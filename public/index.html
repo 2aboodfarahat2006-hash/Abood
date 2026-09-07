@@ -7,6 +7,77 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/style.css">
+<style>
+  /* تنسيقات مضافة للتفاعلات وحالة المشاهدة */
+  .msg-container {
+    position: relative;
+    margin-bottom: 12px;
+    display: flex;
+    flex-direction: column;
+  }
+  .msg-container.my-msg { align-items: flex-end; }
+  .msg-container.peer-msg { align-items: flex-start; }
+
+  .msg-bubble {
+    position: relative;
+    max-width: 80%;
+    padding: 10px 14px;
+    border-radius: 12px;
+  }
+
+  /* قائمة اختيار الإيموجي عند تمرير الماوس */
+  .emoji-picker-bar {
+    display: none;
+    position: absolute;
+    top: -28px;
+    background: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    padding: 2px 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    z-index: 10;
+  }
+  .msg-container.my-msg .emoji-picker-bar { left: 10px; }
+  .msg-container.peer-msg .emoji-picker-bar { right: 10px; }
+  .msg-bubble:hover .emoji-picker-bar { display: flex; gap: 6px; }
+
+  .emoji-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 15px;
+    transition: transform 0.1s ease;
+  }
+  .emoji-btn:hover { transform: scale(1.3); }
+
+  /* صندوق عرض الإيموجيات المضافة أسفل الفقاعة */
+  .reactions-display {
+    display: flex;
+    gap: 4px;
+    margin-top: -6px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1px 6px;
+    font-size: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    z-index: 2;
+  }
+
+  /* وقت وحالة المشاهدة */
+  .msg-meta {
+    font-size: 11px;
+    color: #888;
+    margin-top: 3px;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+  .seen-badge {
+    color: #3b82f6;
+    font-weight: 600;
+  }
+</style>
 </head>
 <body>
 <div id="app">
@@ -36,7 +107,7 @@
         </div>
       </div>
 
-      <div id="name-step">
+      <div id="name-step" style="display:none;">
         <input type="text" id="name-input" placeholder="اكتب اسمك...">
         <button class="primary-btn" id="confirm-name-btn">دخول إلى المحادثة</button>
         <span class="back-link" id="back-to-roles">رجوع</span>
@@ -45,7 +116,7 @@
   </div>
 
   <!-- شاشة الشات -->
-  <div id="chat-screen">
+  <div id="chat-screen" style="display:none;">
     <header>
       <div class="brand">
         <span class="dot" id="conn-dot"></span>
@@ -67,7 +138,7 @@
     <div id="typing-indicator" class="typing-indicator" style="display:none;"></div>
 
     <footer>
-      <div id="attach-preview">
+      <div id="attach-preview" style="display:none;">
         <img id="attach-preview-img" style="display:none;">
         <span id="attach-preview-name"></span>
         <span class="remove-attach" id="remove-attach">إزالة ✕</span>
@@ -87,7 +158,7 @@
 <input type="file" id="image-input" accept="image/*" hidden>
 <input type="file" id="file-input" hidden>
 
-<div id="lightbox"><img id="lightbox-img" src=""></div>
+<div id="lightbox" style="display:none;"><img id="lightbox-img" src=""></div>
 
 <script src="/socket.io/socket.io.js"></script>
 <script src="/client.js"></script>
